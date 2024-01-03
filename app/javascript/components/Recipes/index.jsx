@@ -48,8 +48,11 @@ const Recipes = () => {
         </div>
 
         <div className="mt-10 grid gap-2 grid-cols-4">
-          <div className="border-2 rounded-md p-4">
-            adsa
+          <div className="border-2 rounded-md p-3">
+            <p className="p-0 m-0">
+              <img src="https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fimages.media-allrecipes.com%2Fuserphotos%2F4532325.jpg" />
+            </p>
+            <p className="p-0 m-0 text-center pt-3">Buffalo Chicken and Ranch Wraps</p>
           </div>
         </div>
       </div>
