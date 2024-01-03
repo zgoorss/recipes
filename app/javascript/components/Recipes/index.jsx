@@ -7,7 +7,7 @@ import RecipeRow from './RecipeRow';
 import Spinner from './../Spinner';
 
 const Recipes = () => {
-  const [queryParameters] = useSearchParams()
+  const [queryParameters, setSearchParams] = useSearchParams()
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -16,26 +16,34 @@ const Recipes = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [titleFilter, setTitleFilter] = useState("");
-  const [categoriesFilter, setCategoriesFilter] = useState("");
-  const [ingredientsFilter, setIngredientsFilter] = useState([]);
+  const [titleFilter, setTitleFilter] = useState(queryParameters.get("title") || "");
+  const [categoriesFilter, setCategoriesFilter] = useState([]);
+  const ingredientsFromQuery = queryParameters.get("ingredients");
+  const [ingredientsFilter, setIngredientsFilter] = useState(
+    ingredientsFromQuery ? ingredientsFromQuery.split(",") : []
+  );
 
   const [recipes, setRecipes] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-      }
-
       setIsLoading(true);
       await getRecipes();
-      await sleep(1000);
       setIsLoading(false);
     }
 
-    fetchData()
+    updateSearchParams();
+    fetchData();
   }, [currentPage, categoriesFilter, titleFilter, ingredientsFilter]);
+
+  const updateSearchParams = () => {
+    setSearchParams(`?${new URLSearchParams({
+      page: currentPage,
+      title: titleFilter,
+      category_ids: categoriesFilter,
+      ingredients: ingredientsFilter,
+    })}`)
+  };
 
   const fetchCategories = async (inputValue, callback) => {
     const response =
@@ -92,6 +100,7 @@ const Recipes = () => {
         <div className="flex items-center">
           <span style={{ width: "200px" }}>By title:</span>
           <input
+            defaultValue={titleFilter}
             type="text"
             name="title-filter"
             id="title_filter"
@@ -145,11 +154,11 @@ const Recipes = () => {
             <small>(click on button to delete)</small>
           </div>
 
-          {ingredientsFilter.map((ingredient, index) => <>
+          {ingredientsFilter.length > 0 && ingredientsFilter.map((ingredient, index) => <>
             <span
-              key={index}
               className="inline-flex items-center cursor-pointer rounded-md bg-gray-50 mr-2 p-3 hover:bg-gray-300 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
               onClick={deleteIngredient}
+              key={index}
             >
               {ingredient}
             </span>

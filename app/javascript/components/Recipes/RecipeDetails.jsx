@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import Spinner from './../Spinner';
 
 const RecipeDetails = () => {
   const params = useParams();
   const navigate = useNavigate();
+  const { state } = useLocation();
 
   const { id } = params;
   const [isLoading, setIsLoading] = useState(true);
@@ -41,6 +42,8 @@ const RecipeDetails = () => {
     .then((res) => setRecipe(res))
     .catch(() => navigate("/"));
   };
+
+  const backLink = state?.historyParams ? "/recipes?" + state?.historyParams : "/recipes";
 
   if (isLoading) return <Spinner />;
 
@@ -90,6 +93,12 @@ const RecipeDetails = () => {
           <span>{author}</span>
         </div>
       </div>
+
+      <Link to={backLink} className="mt-5 mx-auto">
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Back
+        </button>
+      </Link>
     </div>
   );
 };

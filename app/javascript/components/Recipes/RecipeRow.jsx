@@ -1,12 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const RecipeRow = ({ recipe }) => {
-  const { id, image, title } = recipe;
+  const [queryParameters] = useSearchParams()
   const navigate = useNavigate();
 
-  const handleOnClick = () => navigate("/recipe/" + id);
+  const { id, image, title } = recipe;
+
+  const handleOnClick = () => navigate("/recipe/" + id, { state: { historyParams: queryParameters.toString() } });
 
   return (
     <div
@@ -15,7 +17,7 @@ const RecipeRow = ({ recipe }) => {
       onClick={handleOnClick}
     >
       <p className="p-0 m-0">
-        <img src={image} loading="lazy" style={{ width: "100%", maxHeight: "250px" }}/>
+        <img src={image} loading="lazy" alt="Image" style={{ width: "100%", maxHeight: "250px" }}/>
       </p>
       <p className="p-0 m-0 text-center pt-3">{title}</p>
     </div>
