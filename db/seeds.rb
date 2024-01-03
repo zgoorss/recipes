@@ -7,3 +7,20 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+Category.delete_all
+Recipe.delete_all
+
+file = File.read("./db/data/recipes-en.json")
+recipes = JSON.parse(file)
+recipes.each do |recipe|
+  category = Category.find_or_create_by!(title: recipe["category"])
+  Recipe.create!(
+    recipe
+      .except("category", "ratings")
+      .merge!(
+        category_id: category.id,
+        ratings: [recipe["ratings"]]
+      )
+  )
+end
