@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      get 'recipes/index'
-      get 'recipes/show'
-      get 'recipes/index'
+      get "recipes/index"
+      get "recipes/show"
+      get "recipes/index"
     end
   end
   root "homepage#index"
@@ -16,5 +16,5 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
-  get "/recipes" => "homepage#index"
+  get "/*path" => "homepage#index"
 end
