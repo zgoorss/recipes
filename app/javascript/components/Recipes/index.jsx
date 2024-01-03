@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import Select from 'react-select';
+import AsyncSelect from 'react-select/async';
 import { Pagination } from 'flowbite-react';
 
 import Spinner from './../Spinner';
@@ -9,32 +9,62 @@ const Recipes = () => {
   const [queryParameters] = useSearchParams()
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [isIngredientsFilterButtonEnabled, setIsIngredientsFilterButtonEnabled] = useState(false);
   const [currentPage, setCurrentPage] = useState(Number(queryParameters.get("page")) || 1);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
+  const [titleFilter, setTitleFilter] = useState("");
+  const [categoriesFilter, setCategoriesFilter] = useState("");
+  const [ingredientsFilter, setIngredientsFilter] = useState([]);
+
   const [recipes, setRecipes] = useState([]);
 
-  const onPageChange = (page) => {
-    setCurrentPage(page);
-    setRecipes([]);
-
-    const url = `/api/v1/recipes/index?page=${currentPage}`;
-    fetch(url)
-      .then((res) => {
-        if (res.ok) {
-          setTotalCount(res.headers.get("Total-Count"));
-          setTotalPages(res.headers.get("Total-Pages"));
-          return res.json();
-        }
-        throw new Error("Network response was not ok.");
-      })
-      .then((res) => setRecipes(res))
-      .catch(() => navigate("/"));
-  }
-
   useEffect(() => {
-    const url = `/api/v1/recipes/index?page=${currentPage}`;
+    const fetchData = async () => {
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      setIsLoading(true);
+      await getRecipes();
+      await sleep(1000);
+      setIsLoading(false);
+    }
+
+    fetchData()
+  }, [currentPage, categoriesFilter, titleFilter, ingredientsFilter]);
+
+  const promiseOptions = async (inputValue, callback) => {
+    const response = await fetch(`/api/v1/categories/index?title=${inputValue}`)
+    const res = await response.json();
+    await callback(res.map(category => {
+      return { value: category.id, label: category.title }
+    }));
+  };
+
+  const onChangeSelectedOption = async (options) =>
+    setCategoriesFilter(options.map(category => category.value));
+
+  const handleIngredientsFilterButton = () => {
+    const input = document.querySelector('#ingredients_filter');
+    const inputValue = input.value;
+    setIngredientsFilter([...ingredientsFilter, inputValue]);
+    input.value = "";
+  };
+
+  const deleteIngredient = (e) => {
+    const filteredValues = ingredientsFilter.filter(ingredient => ingredient !== e.target.innerText);
+    setIngredientsFilter(filteredValues);
+  };
+
+  const getRecipes = async () => {
+    let url = `/api/v1/recipes/index?page=${currentPage}`;
+    if (categoriesFilter.length > 0) url += `&category_ids=${categoriesFilter.join(',')}`;
+    if (titleFilter.length > 0) url += `&title=${titleFilter}`;
+    if (ingredientsFilter.length > 0) url += `&ingredients=${ingredientsFilter.join(',')}`;
+
     fetch(url)
       .then((res) => {
         if (res.ok) {
@@ -46,7 +76,7 @@ const Recipes = () => {
       })
       .then((res) => setRecipes(res))
       .catch(() => navigate("/"));
-  }, []);
+  };
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -61,19 +91,23 @@ const Recipes = () => {
           <span style={{ width: "200px" }}>By title:</span>
           <input
             type="text"
-            name="price"
-            id="price"
-            className="block w-1/3 rounded-md border-0 py-1.5 pl-3 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            name="title-filter"
+            id="title_filter"
+            className="block w-1/2 rounded-md border-0 py-1.5 pl-3 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             placeholder="Type your title..."
+            onKeyUp={(e) => setTitleFilter(e.target.value)}
           />
         </div>
 
         <div className="mt-2 flex items-center">
           <span style={{ width: "200px" }}>By categories:</span>
-          <Select
+          <AsyncSelect
             isMulti
-            options={[]}
-            className="block w-1/3 rounded-md border-0 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            cacheOptions
+            loadOptions={promiseOptions}
+            onChange={onChangeSelectedOption}
+            className="block w-1/2 rounded-md border-0 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            placeholder="Type your category..."
           />
         </div>
 
@@ -81,26 +115,55 @@ const Recipes = () => {
           <span style={{ width: "200px" }}>By ingredients:</span>
           <input
             type="text"
-            name="price"
-            id="price"
-            className="block w-1/3 rounded-md border-0 py-1.5 pl-3 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            name="ingredients-filter"
+            id="ingredients_filter"
+            className="block w-1/2 rounded-md border-0 py-1.5 pl-3 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             placeholder="Type your ingredient..."
+            onKeyUp={(e) => e.target.value.length > 0 ? setIsIngredientsFilterButtonEnabled(true) : setIsIngredientsFilterButtonEnabled(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleIngredientsFilterButton();
+              }
+            }}
           />
-          <button className="ml-1 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 text-xs rounded">
+          <button
+            className="ml-2 disabled:opacity-75 bg-blue-500 enabled:hover:bg-blue-700 text-white font-bold py-2 px-4 text-xs rounded"
+            disabled={!isIngredientsFilterButtonEnabled}
+            onClick={handleIngredientsFilterButton}
+          >
             Add ingredient
           </button>
         </div>
+
+        <hr className="mt-5" />
+
+        <div className="mt-5 flex items-center">
+          <div style={{ width: "200px" }}>
+            <p>Selected ingredients:</p>
+            <small>(click to delete)</small>
+          </div>
+
+          {ingredientsFilter.map((ingredient, index) => <>
+            <span
+              key={index}
+              className="inline-flex items-center cursor-pointer rounded-md bg-gray-50 mr-2 p-3 hover:bg-gray-300 pointer text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
+              onClick={deleteIngredient}
+            >
+              {ingredient}
+            </span>
+          </>)}
+        </div>
       </div>
 
-      {recipes.length === 0 && <Spinner />}
-      {recipes.length > 0 && <>
+      {isLoading && <Spinner />}
+      {!isLoading && <>
         <div className="mt-10">Showing <b>{currentPage}</b> of {totalPages} entries. Total count: <b>{totalCount}</b>.</div>
 
         <div className="mt-2 grid gap-2 grid-cols-5">
-          {recipes.map(recipe => (
-              <div className="border-2 rounded-md p-3 flex justify-between flex-col">
+          {recipes.map((recipe, index) => (
+              <div key={index} className="border-2 rounded-md p-3 flex justify-between flex-col" style={{ height: "350px" }}>
                 <p className="p-0 m-0">
-                  <img src={recipe.image} style={{ maxHeight: "300px" }}/>
+                  <img src={recipe.image} loading="lazy" style={{ width: "100%", maxHeight: "250px" }}/>
                 </p>
                 <p className="p-0 m-0 text-center pt-3">{recipe.title}</p>
               </div>
@@ -108,7 +171,7 @@ const Recipes = () => {
         </div>
 
         <div className="mt-10 flex overflow-x-auto sm:justify-center">
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} showIcons />
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} showIcons />
         </div>
       </>}
     </div>

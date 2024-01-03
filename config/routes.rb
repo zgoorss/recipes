@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
+      get "categories/index"
       get "recipes/index"
       get "recipes/show"
       get "recipes/index"
