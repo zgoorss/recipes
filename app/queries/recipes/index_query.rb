@@ -27,7 +27,7 @@ module Recipes
     def filter_by_category_ids(scope)
       return scope if category_ids.blank?
 
-      default.where(category_id: category_ids)
+      scope.where(category_id: category_ids)
     end
 
     def filter_by_ingredients(scope)

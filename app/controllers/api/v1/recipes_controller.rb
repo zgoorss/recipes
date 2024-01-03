@@ -7,6 +7,8 @@ class Api::V1::RecipesController < ApplicationController
   end
 
   def show
+    record = Recipe.find(params[:id])
+    render json: record, serializer: ::V1::RecipeSerializer
   end
 
   private

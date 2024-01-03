@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import AsyncSelect from 'react-select/async';
 import { Pagination } from 'flowbite-react';
 
+import RecipeRow from './RecipeRow';
 import Spinner from './../Spinner';
 
 const Recipes = () => {
@@ -36,10 +37,11 @@ const Recipes = () => {
     fetchData()
   }, [currentPage, categoriesFilter, titleFilter, ingredientsFilter]);
 
-  const promiseOptions = async (inputValue, callback) => {
-    const response = await fetch(`/api/v1/categories/index?title=${inputValue}`)
-    const res = await response.json();
-    await callback(res.map(category => {
+  const fetchCategories = async (inputValue, callback) => {
+    const response =
+      await fetch(`/api/v1/categories/index?title=${inputValue}`)
+        .then(response => response.json());
+    await callback(response.map(category => {
       return { value: category.id, label: category.title }
     }));
   };
@@ -72,7 +74,7 @@ const Recipes = () => {
           setTotalPages(res.headers.get("Total-Pages"));
           return res.json();
         }
-        throw new Error("Network response was not ok.");
+        throw new Error("Something went wrong");
       })
       .then((res) => setRecipes(res))
       .catch(() => navigate("/"));
@@ -104,7 +106,7 @@ const Recipes = () => {
           <AsyncSelect
             isMulti
             cacheOptions
-            loadOptions={promiseOptions}
+            loadOptions={fetchCategories}
             onChange={onChangeSelectedOption}
             className="block w-1/2 rounded-md border-0 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             placeholder="Type your category..."
@@ -140,13 +142,13 @@ const Recipes = () => {
         <div className="mt-5 flex items-center">
           <div style={{ width: "200px" }}>
             <p>Selected ingredients:</p>
-            <small>(click to delete)</small>
+            <small>(click on button to delete)</small>
           </div>
 
           {ingredientsFilter.map((ingredient, index) => <>
             <span
               key={index}
-              className="inline-flex items-center cursor-pointer rounded-md bg-gray-50 mr-2 p-3 hover:bg-gray-300 pointer text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
+              className="inline-flex items-center cursor-pointer rounded-md bg-gray-50 mr-2 p-3 hover:bg-gray-300 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
               onClick={deleteIngredient}
             >
               {ingredient}
@@ -160,14 +162,7 @@ const Recipes = () => {
         <div className="mt-10">Showing <b>{currentPage}</b> of {totalPages} entries. Total count: <b>{totalCount}</b>.</div>
 
         <div className="mt-2 grid gap-2 grid-cols-5">
-          {recipes.map((recipe, index) => (
-              <div key={index} className="border-2 rounded-md p-3 flex justify-between flex-col" style={{ height: "350px" }}>
-                <p className="p-0 m-0">
-                  <img src={recipe.image} loading="lazy" style={{ width: "100%", maxHeight: "250px" }}/>
-                </p>
-                <p className="p-0 m-0 text-center pt-3">{recipe.title}</p>
-              </div>
-          ))}
+          {recipes.map((recipe, index) => <RecipeRow key={index} recipe={recipe} />)}
         </div>
 
         <div className="mt-10 flex overflow-x-auto sm:justify-center">
