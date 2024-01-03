@@ -1,18 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Select from 'react-select';
+import { Pagination } from 'flowbite-react';
 
 import Spinner from './../Spinner';
 
 const Recipes = () => {
+  const [queryParameters] = useSearchParams()
   const navigate = useNavigate();
+
+  const [currentPage, setCurrentPage] = useState(Number(queryParameters.get("page")) || 1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   const [recipes, setRecipes] = useState([]);
 
-  useEffect(() => {
-    const url = "/api/v1/recipes/index";
+  const onPageChange = (page) => {
+    setCurrentPage(page);
+    setRecipes([]);
+
+    const url = `/api/v1/recipes/index?page=${currentPage}`;
     fetch(url)
       .then((res) => {
         if (res.ok) {
+          setTotalCount(res.headers.get("Total-Count"));
+          setTotalPages(res.headers.get("Total-Pages"));
+          return res.json();
+        }
+        throw new Error("Network response was not ok.");
+      })
+      .then((res) => setRecipes(res))
+      .catch(() => navigate("/"));
+  }
+
+  useEffect(() => {
+    const url = `/api/v1/recipes/index?page=${currentPage}`;
+    fetch(url)
+      .then((res) => {
+        if (res.ok) {
+          setTotalCount(res.headers.get("Total-Count"));
+          setTotalPages(res.headers.get("Total-Pages"));
           return res.json();
         }
         throw new Error("Network response was not ok.");
@@ -67,7 +94,9 @@ const Recipes = () => {
 
       {recipes.length === 0 && <Spinner />}
       {recipes.length > 0 && <>
-        <div className="mt-10 grid gap-2 grid-cols-5">
+        <div className="mt-10">Showing <b>{currentPage}</b> of {totalPages} entries. Total count: <b>{totalCount}</b>.</div>
+
+        <div className="mt-2 grid gap-2 grid-cols-5">
           {recipes.map(recipe => (
               <div className="border-2 rounded-md p-3 flex justify-between flex-col">
                 <p className="p-0 m-0">
@@ -76,6 +105,10 @@ const Recipes = () => {
                 <p className="p-0 m-0 text-center pt-3">{recipe.title}</p>
               </div>
           ))}
+        </div>
+
+        <div className="mt-10 flex overflow-x-auto sm:justify-center">
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} showIcons />
         </div>
       </>}
     </div>
