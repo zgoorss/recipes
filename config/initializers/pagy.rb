@@ -180,8 +180,9 @@ require "pagy/extras/headers"
 
 # Overflow extra: Allow for easy handling of overflowing pages
 # See https://ddnexus.github.io/pagy/docs/extras/overflow
-# require 'pagy/extras/overflow'
+require "pagy/extras/overflow"
 # Pagy::DEFAULT[:overflow] = :empty_page    # default  (other options: :last_page and :exception)
+Pagy::DEFAULT[:overflow] = :last_page
 
 # Support extra: Extra support for features like: incremental, infinite, auto-scroll pagination
 # See https://ddnexus.github.io/pagy/docs/extras/support
