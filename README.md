@@ -17,18 +17,18 @@
 
 - `title`: string
 
-There is an unique index on `title`
+There is an unique index on `title`.
 
 ### Recipes
 
 - `title`: string
 - `cook_time`: integer
 - `prep_time`: integer
-- `ingredients`: array string
-- `ratings`: array string
+- `ingredients`: string[]
+- `ratings`: float[]
 - `cuisine`: string
 - `category_id` - belongs to categories
 - `author`: string
 - `image`: string
 
-There is an index on category_id, ingredients, ratings and title.
+There are indexes on category_id, ingredients, ratings and title.
