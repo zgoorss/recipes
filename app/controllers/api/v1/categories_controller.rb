@@ -6,7 +6,7 @@ class Api::V1::CategoriesController < ApplicationController
   private
 
   def permit_params
-    params.permit(:title)
+    params.permit(:value)
   end
 
   def fetch_categories

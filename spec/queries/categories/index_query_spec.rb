@@ -16,8 +16,8 @@ describe Categories::IndexQuery do
       end
     end
 
-    context "when title param is present" do
-      let(:params) { { title: "Category 1" } }
+    context "when value param is present" do
+      let(:params) { { value: "Category 1" } }
       let(:query) { described_class.new(params) }
 
       it "returns categories with matching title" do

@@ -16,8 +16,8 @@ describe Api::V1::CategoriesController, type: :controller do
       end
     end
 
-    context "when title param is present" do
-      before { get :index, params: { title: "Category 1" } }
+    context "when value param is present" do
+      before { get :index, params: { value: "Category 1" } }
 
       it "returns categories with matching title" do
         json = JSON.parse(response.body)
