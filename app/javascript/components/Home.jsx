@@ -22,7 +22,7 @@ export default () => (
             Recipes
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-600">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Welcome to our innovative web application dedicated to making your culinary journey delightful and hassle-free! Our recipe platform is a one-stop destination for all your cooking needs, designed to inspire both beginners and seasoned chefs alike.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link
