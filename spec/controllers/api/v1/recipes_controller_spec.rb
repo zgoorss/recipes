@@ -32,13 +32,20 @@ describe Api::V1::RecipesController, type: :controller do
   describe "GET #show" do
     let(:recipe) { create(:recipe) }
 
-    before { get :show, params: { id: recipe.id } }
-
     it "returns the recipe" do
+      get :show, params: { id: recipe.id }
       json = JSON.parse(response.body)
 
       expect(json).not_to be_empty
       expect(json["id"]).to eq(recipe.id)
+    end
+
+    context "when record is not found" do
+      it "returns 404" do
+        get :show, params: { id: -1 }
+
+        expect(response.status).to eq(404)
+      end
     end
   end
 end
