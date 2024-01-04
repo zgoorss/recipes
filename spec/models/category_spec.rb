@@ -4,6 +4,7 @@ describe Category, type: :model do
   subject { Category.new }
 
   it { should have_many(:recipes).dependent(:destroy) }
+  it { should validate_presence_of(:title) }
 
   describe "#title" do
     it "normalizes the title" do
