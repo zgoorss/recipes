@@ -47,7 +47,7 @@ const Recipes = () => {
 
   const fetchCategories = async (inputValue, callback) => {
     const response =
-      await fetch(`/api/v1/categories/index?title=${inputValue}`)
+      await fetch(`/api/v1/categories/index?value=${inputValue}`)
         .then(response => response.json());
     await callback(response.map(category => {
       return { value: category.id, label: category.title }
@@ -188,15 +188,17 @@ const Recipes = () => {
 
       {isLoading && <Spinner />}
       {!isLoading && <>
-        <div className="mt-10">Showing <b>{currentPage}</b> of {totalPages} entries. Total count: <b>{totalCount}</b>.</div>
+        <div className="mt-10">Showing <b>{currentPage > totalPages ? 1 : currentPage }</b> of {totalPages} entries. Total count: <b>{totalCount}</b>.</div>
 
         <div className="mt-2 grid gap-2 grid-cols-5">
           {recipes.map((recipe, index) => <RecipeRow key={index} recipe={recipe} />)}
         </div>
 
-        <div className="mt-10 flex overflow-x-auto sm:justify-center">
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} showIcons />
-        </div>
+        {totalPages > 1 && <>
+          <div className="mt-10 flex overflow-x-auto sm:justify-center">
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} showIcons />
+          </div>
+        </>}
       </>}
     </div>
   )
