@@ -95,6 +95,7 @@ const Recipes = () => {
     setTitleFilter("");
     setCategoriesFilter([]);
     setIngredientsFilter([]);
+    document.querySelector("#title_filter").value = "";
   };
 
   return (
@@ -161,7 +162,7 @@ const Recipes = () => {
         <div className="mt-5 flex items-center">
           <div style={{ width: "200px" }}>
             <p>Selected ingredients:</p>
-            <small>(click on button to delete)</small>
+            <small>(click the button to delete)</small>
           </div>
 
           {ingredientsFilter.length > 0 && ingredientsFilter.map((ingredient, index) => <>
