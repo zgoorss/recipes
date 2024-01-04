@@ -1,24 +1,34 @@
-# README
+# WELCOME IN RECIPES APP
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Requiremets
 
-Things you may want to cover:
+- Ruby 3.2.2
+- Node 20
 
-* Ruby version
+## Setup
 
-* System dependencies
+- bundle
+- rake db:setup
+- bin/dev
 
-* Configuration
+## Models
 
-* Database creation
+### Categories
 
-* Database initialization
+- `title`: string
 
-* How to run the test suite
+There is an unique index on `title`
 
-* Services (job queues, cache servers, search engines, etc.)
+### Recipes
 
-* Deployment instructions
+- `title`: string
+- `cook_time`: integer
+- `prep_time`: integer
+- `ingredients`: array string
+- `ratings`: array string
+- `cuisine`: string
+- `category_id` - belongs to categories
+- `author`: string
+- `image`: string
 
-* ...
+There is an index on category_id, ingredients, ratings and title.
