@@ -1,13 +1,15 @@
 class Api::V1::CategoriesController < ApplicationController
   def index
-    title = index_params[:title]
-    records = title ? Category.where("title ILIKE ?", "%#{title}%").order(:title) : Category.all.order(:title)
-    render json: records, each_serializer: ::V1::CategoriesSerializer
+    render json: fetch_categories, each_serializer: ::V1::CategoriesSerializer
   end
 
   private
 
-  def index_params
+  def permit_params
     params.permit(:title)
+  end
+
+  def fetch_categories
+    Categories::IndexQuery.new(permit_params).call
   end
 end

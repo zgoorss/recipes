@@ -7,7 +7,8 @@ module Recipes
     end
 
     def call
-      Recipe.all
+      Recipe
+        .all
         .then { filter_by_title(_1) }
         .then { filter_by_category_ids(_1) }
         .then { filter_by_ingredients(_1) }
