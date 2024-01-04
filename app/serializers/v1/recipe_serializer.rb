@@ -10,7 +10,7 @@ module V1
       :author,
       :image,
       :category_name,
-      :rating,
+      :rating
 
     def category_name
       object.category.title
