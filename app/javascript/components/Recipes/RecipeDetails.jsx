@@ -21,31 +21,33 @@ const RecipeDetails = () => {
     cuisine,
     author,
     image,
+    category_name,
   } = recipe;
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      await getRecipe();
-      setIsLoading(false);
-    }
-
-    fetchData()
+    const fetchData = async () => await getRecipe();
+    fetchData();
   }, []);
 
   const getRecipe = async () => {
     fetch(`/api/v1/recipe/${id}`)
-    .then((res) => {
-      if (res.ok) return res.json();
-      throw new Error("Something went wrong");
-    })
-    .then((res) => setRecipe(res))
-    .catch(() => navigate("/"));
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error("Something went wrong");
+      })
+      .then((res) => {
+        setRecipe(res);
+        setIsLoading(false);
+      })
+      .catch(() => navigate("/"));
   };
 
   const backLink = state?.historyParams ? "/recipes?" + state?.historyParams : "/recipes";
 
   if (isLoading) return <Spinner />;
+
+  console.log({isLoading})
+  console.log({recipe})
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -60,19 +62,23 @@ const RecipeDetails = () => {
       </div>
 
       <div className="mt-10 rounded-md border-2">
-        <div className="p-2 flex items-center">
+        <div className="p-2 flex items-center odd:bg-gray-200">
           <span style={{ width: "200px" }}>Title</span>
           <span>{title}</span>
         </div>
-        <div className="p-2 flex items-center bg-gray-200">
+        <div className="p-2 flex items-center odd:bg-gray-200">
+          <span style={{ width: "200px" }}>Category name</span>
+          <span>{category_name}</span>
+        </div>
+        <div className="p-2 flex items-center odd:bg-gray-200">
+          <span style={{ width: "200px" }}>Preparation Time</span>
+          <span>{prep_time}</span>
+        </div>
+        <div className="p-2 flex items-center odd:bg-gray-200">
           <span style={{ width: "200px" }}>Cook Time</span>
           <span>{cook_time}</span>
         </div>
-        <div className="p-2 flex items-center">
-          <span style={{ width: "200px" }}>Prepration Time</span>
-          <span>{prep_time}</span>
-        </div>
-        <div className="p-2 flex items-center bg-gray-200">
+        <div className="p-2 flex items-center odd:bg-gray-200">
           <span style={{ width: "200px" }}>Ingredients</span>
           <ul>
             {ingredients?.map((ingredient, index) => (
@@ -80,15 +86,15 @@ const RecipeDetails = () => {
             ))}
           </ul>
         </div>
-        <div className="p-2 flex items-center">
+        <div className="p-2 flex items-center odd:bg-gray-200">
           <span style={{ width: "200px" }}>Rating</span>
           <span>{rating}</span>
         </div>
-        <div className="p-2 flex items-center bg-gray-200">
+        <div className="p-2 flex items-center odd:bg-gray-200">
           <span style={{ width: "200px" }}>Cuisine</span>
           <span>{cuisine || "N/A"}</span>
         </div>
-        <div className="p-2 flex items-center">
+        <div className="p-2 flex items-center odd:bg-gray-200">
           <span style={{ width: "200px" }}>Author</span>
           <span>{author}</span>
         </div>

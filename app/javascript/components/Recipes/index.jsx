@@ -18,6 +18,7 @@ const Recipes = () => {
 
   const [titleFilter, setTitleFilter] = useState(queryParameters.get("title") || "");
   const [categoriesFilter, setCategoriesFilter] = useState([]);
+  const categoriesFilterIds = categoriesFilter.map(category => category.value);
   const ingredientsFromQuery = queryParameters.get("ingredients");
   const [ingredientsFilter, setIngredientsFilter] = useState(
     ingredientsFromQuery ? ingredientsFromQuery.split(",") : []
@@ -29,7 +30,6 @@ const Recipes = () => {
     const fetchData = async () => {
       setIsLoading(true);
       await getRecipes();
-      setIsLoading(false);
     }
 
     updateSearchParams();
@@ -40,7 +40,7 @@ const Recipes = () => {
     setSearchParams(`?${new URLSearchParams({
       page: currentPage,
       title: titleFilter,
-      category_ids: categoriesFilter,
+      category_ids: categoriesFilterIds,
       ingredients: ingredientsFilter,
     })}`)
   };
@@ -55,7 +55,7 @@ const Recipes = () => {
   };
 
   const onChangeSelectedOption = async (options) =>
-    setCategoriesFilter(options.map(category => category.value));
+    setCategoriesFilter(options);
 
   const handleIngredientsFilterButton = () => {
     const input = document.querySelector('#ingredients_filter');
@@ -71,7 +71,7 @@ const Recipes = () => {
 
   const getRecipes = async () => {
     let url = `/api/v1/recipes/index?page=${currentPage}`;
-    if (categoriesFilter.length > 0) url += `&category_ids=${categoriesFilter.join(',')}`;
+    if (categoriesFilter.length > 0) url += `&category_ids=${categoriesFilterIds.join(',')}`;
     if (titleFilter.length > 0) url += `&title=${titleFilter}`;
     if (ingredientsFilter.length > 0) url += `&ingredients=${ingredientsFilter.join(',')}`;
 
@@ -84,8 +84,17 @@ const Recipes = () => {
         }
         throw new Error("Something went wrong");
       })
-      .then((res) => setRecipes(res))
+      .then((res) => {
+        setRecipes(res);
+        setIsLoading(false);
+      })
       .catch(() => navigate("/"));
+  };
+
+  const clearFilters = () => {
+    setTitleFilter("");
+    setCategoriesFilter([]);
+    setIngredientsFilter([]);
   };
 
   return (
@@ -96,7 +105,7 @@ const Recipes = () => {
         </h1>
       </div>
 
-      <div className="mt-20 rounded-md border-2 p-6">
+      <div className="mt-10 rounded-md border-2 p-6">
         <div className="flex items-center">
           <span style={{ width: "200px" }}>By title:</span>
           <input
@@ -115,6 +124,7 @@ const Recipes = () => {
           <AsyncSelect
             isMulti
             cacheOptions
+            value={categoriesFilter}
             loadOptions={fetchCategories}
             onChange={onChangeSelectedOption}
             className="block w-1/2 rounded-md border-0 text-gray-900 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -163,6 +173,15 @@ const Recipes = () => {
               {ingredient}
             </span>
           </>)}
+        </div>
+
+        <div className="mt-5 flex justify-end">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={clearFilters}
+          >
+            Clear filters
+          </button>
         </div>
       </div>
 
