@@ -32,3 +32,8 @@ There is an unique index on `title`.
 - `image`: string
 
 There are indexes on category_id, ingredients, ratings and title.
+
+## Next steps
+
+- Start using algolia or pg_search
+- Start using `sidekiq` to re-index data
