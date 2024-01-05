@@ -1,9 +1,18 @@
 class Recipe < ApplicationRecord
+  include PgSearch::Model
+
   belongs_to :category
 
   validates :title, :cook_time, :prep_time, :ingredients, presence: true
 
   after_commit :update_ingredients_search
+
+  pg_search_scope :by_ingredients, against: :ingredients, using: {
+    tsearch: {
+      dictionary: "english",
+      tsvector_column: "ingredients_search"
+    }
+  }
 
   private
 

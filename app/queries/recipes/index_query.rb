@@ -34,8 +34,10 @@ module Recipes
     def filter_by_ingredients(scope)
       return scope if ingredients.blank?
 
-      values = ingredients.split(",").map { _1.titleize.split }.join(" & ").downcase
-      scope.where("ingredients_search @@ to_tsquery('english', ?)", values)
+      # values = ingredients.split(",").map { _1.titleize.split }.join(" & ").downcase
+      # scope.where("ingredients_search @@ to_tsquery('english', ?)", values)
+      values = ingredients.gsub(/[^A-Za-z0-9,]/, "-").split(",").join(" ")
+      scope.by_ingredients(values)
     end
   end
 end
