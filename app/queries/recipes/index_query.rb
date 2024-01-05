@@ -34,8 +34,8 @@ module Recipes
     def filter_by_ingredients(scope)
       return scope if ingredients.blank?
 
-      values = ingredients.split(",").map { "%#{_1}%" }
-      scope.where("array_to_string(ingredients, ',') ILIKE ALL (array[:values])", values: values)
+      values = ingredients.split(",").map { _1.titleize.split }.join(" & ").downcase
+      scope.where("ingredients_search @@ to_tsquery('english', ?)", values)
     end
   end
 end
