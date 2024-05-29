@@ -79,4 +79,7 @@ test:
 #
 production:
   <<: *default
-  database: recipes_production
+  database: <%= ENV['POSTGRES_DATABASE'] || 'recipes_production' %>
+  host: <%= ENV['POSTGRES_HOST'] %>
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
