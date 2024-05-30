@@ -14,7 +14,7 @@ Recipe.delete_all
 file = File.read("./db/data/recipes-en.json")
 recipes = JSON.parse(file)
 recipes.each do |recipe|
-  category = Category.find_or_create_by!(title: recipe["category"])
+  category = Category.find_or_create_by!(title: recipe["category"] || "other")
   Recipe.create!(
     recipe
       .except("category", "ratings")
